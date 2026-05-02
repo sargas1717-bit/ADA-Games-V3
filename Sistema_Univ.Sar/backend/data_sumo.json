@@ -1,0 +1,133 @@
+{
+  "teams": [
+    {
+      "id": "17776927611380001",
+      "teamName": "Equipo Sumo 1",
+      "schoolName": "Juan Vicente González",
+      "school": "Equipo Sumo 1 — Juan Vicente González",
+      "status": "inspected",
+      "score": 0,
+      "history": [],
+      "category": "sumo",
+      "qualifiedRounds": [
+        1,
+        2,
+        3
+      ],
+      "practiceTickets": 5,
+      "evaluationTickets": {
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 1
+      },
+      "lastTime": 0
+    },
+    {
+      "id": "17776927611400002",
+      "teamName": "Equipo Sumo 2",
+      "schoolName": "U.E. Menca de Leoni",
+      "school": "Equipo Sumo 2 — U.E. Menca de Leoni",
+      "status": "inspected",
+      "score": 0,
+      "history": [],
+      "category": "sumo",
+      "qualifiedRounds": [
+        1,
+        2,
+        3
+      ],
+      "practiceTickets": 5,
+      "evaluationTickets": {
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 1
+      },
+      "lastTime": 0
+    },
+    {
+      "id": "17776927611420003",
+      "teamName": "Equipo Sumo 3",
+      "schoolName": "U.E. La Paz",
+      "school": "Equipo Sumo 3 — U.E. La Paz",
+      "status": "inspected",
+      "score": 0,
+      "history": [],
+      "category": "sumo",
+      "qualifiedRounds": [
+        1,
+        2,
+        3
+      ],
+      "practiceTickets": 5,
+      "evaluationTickets": {
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 1
+      },
+      "lastTime": 0
+    },
+    {
+      "id": "17776927611430004",
+      "teamName": "Equipo Sumo 4",
+      "schoolName": "Colegio Ideal",
+      "school": "Equipo Sumo 4 — Colegio Ideal",
+      "status": "inspected",
+      "score": 0,
+      "history": [],
+      "category": "sumo",
+      "qualifiedRounds": [
+        1,
+        2,
+        3
+      ],
+      "practiceTickets": 5,
+      "evaluationTickets": {
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 1
+      },
+      "lastTime": 0
+    },
+    {
+      "id": "17776927611440005",
+      "teamName": "Equipo Sumo 5",
+      "schoolName": "Nueva Barcelona",
+      "school": "Equipo Sumo 5 — Nueva Barcelona",
+      "status": "inspected",
+      "score": 0,
+      "history": [],
+      "category": "sumo",
+      "qualifiedRounds": [
+        1,
+        2,
+        3
+      ],
+      "practiceTickets": 5,
+      "evaluationTickets": {
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 1
+      },
+      "lastTime": 0
+    }
+  ],
+  "tracks": {},
+  "timers": {
+    "sumo": {
+      "timer": 1800,
+      "timerActive": false,
+      "updatedAt": 1777692761.145324
+    }
+  },
+  "category": "sumo"
+}

@@ -1,0 +1,221 @@
+[
+  {
+    "ronda": 1,
+    "pista": 1,
+    "points": 8,
+    "finalTimeMs": 0,
+    "practice": false,
+    "date": "09:00:00",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 1,
+    "pista": 2,
+    "points": 8,
+    "finalTimeMs": 0,
+    "practice": false,
+    "date": "09:00:00",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 1,
+    "pista": 3,
+    "points": 8,
+    "finalTimeMs": 0,
+    "practice": false,
+    "date": "09:00:00",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 1,
+    "pista": 4,
+    "points": 8,
+    "finalTimeMs": 0,
+    "practice": false,
+    "date": "09:00:00",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 1,
+    "pista": 5,
+    "points": 8,
+    "finalTimeMs": 620000,
+    "practice": false,
+    "date": "09:00:00",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 2,
+    "pista": 1,
+    "points": 8,
+    "finalTimeMs": 0,
+    "practice": false,
+    "date": "11:30:00",
+    "judgeId": "admin",
+    "judgeName": "Admin"
+  },
+  {
+    "ronda": 2,
+    "pista": 2,
+    "points": 8,
+    "finalTimeMs": 0,
+    "practice": false,
+    "date": "11:30:00",
+    "judgeId": "admin",
+    "judgeName": "Admin"
+  },
+  {
+    "ronda": 2,
+    "pista": 3,
+    "points": 8,
+    "finalTimeMs": 0,
+    "practice": false,
+    "date": "11:30:00",
+    "judgeId": "admin",
+    "judgeName": "Admin"
+  },
+  {
+    "ronda": 2,
+    "pista": 4,
+    "points": 8,
+    "finalTimeMs": 690970,
+    "practice": false,
+    "date": "11:30:00",
+    "judgeId": "admin",
+    "judgeName": "Admin"
+  },
+  {
+    "ronda": 4,
+    "pista": 1,
+    "points": 4,
+    "finalTimeMs": 0,
+    "practice": true,
+    "date": "8:44:12 p.\u00a0m.",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 4,
+    "pista": 1,
+    "points": 6,
+    "finalTimeMs": 0,
+    "practice": false,
+    "convertedFromPractice": true,
+    "date": "8:44:29 p.\u00a0m.",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 4,
+    "pista": 2,
+    "points": 6,
+    "finalTimeMs": 0,
+    "practice": false,
+    "convertedFromPractice": true,
+    "date": "8:44:49 p.\u00a0m.",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 4,
+    "pista": 3,
+    "points": 10,
+    "finalTimeMs": 0,
+    "practice": false,
+    "convertedFromPractice": false,
+    "date": "8:45:04 p.\u00a0m.",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 4,
+    "pista": 4,
+    "points": 10,
+    "finalTimeMs": 0,
+    "practice": false,
+    "convertedFromPractice": true,
+    "date": "8:45:18 p.\u00a0m.",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 4,
+    "pista": 5,
+    "points": 5,
+    "finalTimeMs": 0,
+    "practice": true,
+    "date": "8:45:36 p.\u00a0m.",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 4,
+    "pista": 5,
+    "points": 1,
+    "finalTimeMs": 0,
+    "practice": true,
+    "date": "8:45:45 p.\u00a0m.",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 4,
+    "pista": 5,
+    "points": 5,
+    "finalTimeMs": 0,
+    "practice": true,
+    "date": "8:45:57 p.\u00a0m.",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 4,
+    "pista": 5,
+    "points": 1,
+    "finalTimeMs": 0,
+    "practice": true,
+    "date": "8:46:08 p.\u00a0m.",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 4,
+    "pista": 5,
+    "points": 6,
+    "finalTimeMs": 0,
+    "practice": false,
+    "convertedFromPractice": false,
+    "date": "8:46:36 p.\u00a0m.",
+    "judgeId": "admin",
+    "judgeName": "Administrador Central"
+  },
+  {
+    "ronda": 4,
+    "pista": 0,
+    "points": 34,
+    "finalTimeMs": 960000,
+    "finalTime": 960000,
+    "practice": false,
+    "convertedFromPractice": false,
+    "date": "8:48:42 p.\u00a0m.",
+    "judgeId": "contingencia",
+    "judgeName": "Modo Contingencia"
+  },
+  {
+    "ronda": 4,
+    "pista": 0,
+    "points": 34,
+    "finalTimeMs": 840000,
+    "finalTime": 840000,
+    "practice": false,
+    "convertedFromPractice": false,
+    "date": "8:56:05 p.\u00a0m.",
+    "judgeId": "contingencia",
+    "judgeName": "Modo Contingencia"
+  }
+]

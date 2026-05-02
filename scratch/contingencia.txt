@@ -1,0 +1,46 @@
+[
+  [
+    87,
+    "// GUARDIA DE CONTINGENCIA: No sobreescribir datos si hay un guardado activo"
+  ],
+  [
+    646,
+    "// handleUpdateTeamBase acepta un objeto patch para soportar el Modo Contingencia"
+  ],
+  [
+    648,
+    "// Modo Contingencia: handleUpdateTeamBase(id, name, school, { newHistoryEntries: [...] })"
+  ],
+  [
+    655,
+    "// CONTINGENCIA: Si hay entradas por ronda, las agrega al historial"
+  ],
+  [
+    2399,
+    "{/* CABECERA CON TOGGLE CONTINGENCIA */}"
+  ],
+  [
+    2407,
+    "{contingencyMode ? '\u26a1 Modo Contingencia ACTIVO' : 'Activar Modo Contingencia'}"
+  ],
+  [
+    2539,
+    "judgeId: 'contingencia',"
+  ],
+  [
+    2540,
+    "judgeName: 'Modo Contingencia',"
+  ],
+  [
+    2580,
+    "{/* \u2500\u2500 MODO CONTINGENCIA POR RONDA \u2500\u2500 */}"
+  ],
+  [
+    2589,
+    "Modo Contingencia (por Ronda)"
+  ],
+  [
+    3233,
+    "// Mostrar si est\u00e1 calificado O tiene historial (contingencia)"
+  ]
+]

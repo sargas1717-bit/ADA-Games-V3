@@ -1,0 +1,11 @@
+87: // GUARDIA DE CONTINGENCIA: No sobreescribir datos si hay un guardado activo
+597: // handleUpdateTeamBase acepta un objeto patch para soportar el Modo Contingencia
+599: // Modo Contingencia: handleUpdateTeamBase(id, name, school, { newHistoryEntries: [...] })
+606: // CONTINGENCIA: Si hay entradas por ronda, las agrega al historial
+2315: {/* CABECERA CON TOGGLE CONTINGENCIA */}
+2323: {contingencyMode ? '⚡ Modo Contingencia ACTIVO' : 'Activar Modo Contingencia'}
+2455: judgeId: 'contingencia',
+2456: judgeName: 'Modo Contingencia',
+2496: {/* ── MODO CONTINGENCIA POR RONDA ── */}
+2505: Modo Contingencia (por Ronda)
+3131: // Mostrar si está calificado O tiene historial (contingencia)
