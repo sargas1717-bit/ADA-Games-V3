@@ -71,6 +71,11 @@ Este documento detalla las funcionalidades principales y la evolución del siste
 - **Control Antidopaje (Límite 3 Intentos)**: Sistema que impone un uso máximo de 3 evaluaciones y filtra la mejor nota como puntuación final de torneo por equipo (mejor % y mejor tiempo).
 - **HUD No Invasivo**: Integración de modo translúcido y transparente de la UI del mapa para permitir completa visión del trazado inferior, incluyendo soporte de espaciadores huecos de cuadricula.
 
+### v4.9 - Sincronización y Retorno al Repositorio Original
+- **Consolidación de Historial**: Migración de todas las mejoras de abril desde el clon de trabajo hacia el repositorio original `AdaGames_v3`.
+- **Restauración de Arquitectura Estable**: Retorno al motor basado en JSON para asegurar la integridad de los datos durante la competencia real.
+- **Validación de Autoría**: Sincronización de commits para preservar marcas de tiempo y trazabilidad del desarrollo.
+
 ---
 
 ## 🚀 Últimas Mejoras Core (Sesión Actual)
