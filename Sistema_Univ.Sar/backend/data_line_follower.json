@@ -42,8 +42,7 @@
       "category": "line_follower",
       "qualifiedRounds": [
         1,
-        2,
-        3
+        2
       ],
       "practiceTickets": 5,
       "evaluationTickets": {
@@ -96,9 +95,7 @@
       ],
       "category": "line_follower",
       "qualifiedRounds": [
-        1,
-        2,
-        3
+        1
       ],
       "practiceTickets": 5,
       "evaluationTickets": {
@@ -120,9 +117,7 @@
       "history": [],
       "category": "line_follower",
       "qualifiedRounds": [
-        1,
-        2,
-        3
+        1
       ],
       "practiceTickets": 5,
       "evaluationTickets": {
@@ -161,8 +156,7 @@
       "category": "line_follower",
       "qualifiedRounds": [
         1,
-        2,
-        3
+        2
       ],
       "practiceTickets": 5,
       "evaluationTickets": {
@@ -184,9 +178,7 @@
       "history": [],
       "category": "line_follower",
       "qualifiedRounds": [
-        1,
-        2,
-        3
+        1
       ],
       "practiceTickets": 5,
       "evaluationTickets": {
@@ -432,9 +424,9 @@
   },
   "timers": {
     "line_follower": {
-      "timer": 1800,
+      "timer": 2100,
       "timerActive": true,
-      "updatedAt": 1777857033.4084222
+      "updatedAt": 1777859224.175411
     }
   },
   "category": "line_follower"

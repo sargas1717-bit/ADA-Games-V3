@@ -9,8 +9,7 @@
 //   - Modo Suspense (Ocultar Top 3 para premiación)
 // ============================================================================
 
-function RankingView({ teams, currentUser, showToast }) {
-  const [suspenseMode, setSuspenseMode] = React.useState(false);
+function RankingView({ teams, currentUser, showToast, suspenseMode, setSuspenseMode }) {
   const plugin = getCategoryPlugin(currentUser?.category);
 
   const rankedTeams = React.useMemo(() => {

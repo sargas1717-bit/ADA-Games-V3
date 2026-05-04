@@ -46,9 +46,10 @@ function SchoolLogo({ schoolName, size = 48 }) {
     const filename = schoolMap[schoolName] || "default.png";
     return `logos/${filename}`;
   };
+  const fallbackSrc = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23f1f5f9'/><text x='50' y='55' font-family='sans-serif' font-size='24' font-weight='bold' fill='%2394a3b8' text-anchor='middle' dominant-baseline='middle'>ADA</text></svg>";
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 flex items-center justify-center overflow-hidden flex-shrink-0" style={{ width: size, height: size }}>
-      <img src={getLogoPath(schoolName)} alt="Logo" className="w-full h-full object-contain p-1" onError={(e) => { e.target.src = 'https://via.placeholder.com/100?text=ADA'; }} />
+      <img src={getLogoPath(schoolName)} alt="Logo" className="w-full h-full object-contain p-1" onError={(e) => { e.target.onerror = null; e.target.src = fallbackSrc; }} />
     </div>
   );
 }

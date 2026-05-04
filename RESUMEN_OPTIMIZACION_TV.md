@@ -29,3 +29,12 @@ Se ha reconstruido la vista de televisiÃ³n para ofrecer una experiencia de trans
 ---
 **Estado del Sistema:** ESTABLE y listo para producciÃ³n.
 **Repositorio de Respaldo:** [Sistema_Univ.Sar](https://github.com/sargas1717-bit/Sistema_Univ.Sar.git)
+
+## 5. Estabilización de Evaluación y Sincronización (3 de mayo de 2026)
+*   **Módulo Sigue Líneas Estabilizado**: Se reescribió y estabilizó la estructura JSX del panel de juez, solucionando los cuelgues del Virtual DOM (NotFoundError) y permitiendo el flujo continuo de evaluación entre múltiples equipos sin recargar la página.
+*   **Gestión Dual de Cronómetros**:
+    *   **Cronómetro Local (Juez)**: Ajustable en formato MM:SS para limitar el tiempo máximo en el tablero interactivo.
+    *   **Cronómetro Global (Ronda)**: Sincronizado mediante polling en tiempo real con el servidor. Ahora el tiempo fluye de forma idéntica en Ranking, Pantallas de TV y el Panel de Control, asegurando precisión total para la competencia.
+*   **Modo Suspenso Reparado**: Se enlazó correctamente el estado global de Suspenso en \pp.js\ con la vista de Ranking. Los botones ahora emiten el cambio a todo el ecosistema.
+*   **Manejo de Imágenes Resiliente**: Se implementó un fallback en SVG en Base64 para los logos de las escuelas. Si el servidor no encuentra la imagen local (ej. \1-Juan_Vicente_Gonzlez.jpg\), el sistema dibuja un escudo genérico elegante sin depender de APIs externas, evitando los errores \404\ y \
+et::ERR_CONNECTION_CLOSED\.

@@ -102,15 +102,14 @@ function useCategoryTimer(categoryId) {
     return localStorage.getItem(storageActiveKey) === 'true';
   });
 
+  // 1. Lógica de Cuenta Regresiva (Local)
   React.useEffect(() => {
     if (!timerActive || timer <= 0) return;
     const interval = setInterval(() => {
       setTimer(prev => {
         const next = Math.max(0, prev - 1);
-        if (next % 5 === 0) localStorage.setItem(storageKey, next.toString());
         if (next <= 0) {
           setTimerActive(false);
-          localStorage.setItem(storageActiveKey, 'false');
           fetch(`${API_BASE}/timer`, {
             method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ [categoryId]: { timer: 0, timerActive: false } })
@@ -121,6 +120,36 @@ function useCategoryTimer(categoryId) {
     }, 1000);
     return () => clearInterval(interval);
   }, [timerActive, categoryId]);
+
+  // 2. Polling para sincronizar con otros clientes
+  React.useEffect(() => {
+    const syncWithServer = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/timer`);
+        const data = await res.json();
+        const serverTimer = data[categoryId];
+        if (serverTimer) {
+          setTimer(prev => {
+            if (Math.abs(serverTimer.timer - prev) > 3) return serverTimer.timer;
+            return prev;
+          });
+          setTimerActive(prevActive => {
+            if (serverTimer.timerActive !== prevActive) return serverTimer.timerActive;
+            return prevActive;
+          });
+        }
+      } catch (e) {}
+    };
+
+    const interval = setInterval(syncWithServer, 5000); 
+    return () => clearInterval(interval);
+  }, [categoryId]);
+
+  // 3. Persistencia Local
+  React.useEffect(() => {
+    localStorage.setItem(storageKey, timer.toString());
+    localStorage.setItem(storageActiveKey, timerActive.toString());
+  }, [timer, timerActive]);
 
   const toggle = async () => {
     const next = !timerActive;

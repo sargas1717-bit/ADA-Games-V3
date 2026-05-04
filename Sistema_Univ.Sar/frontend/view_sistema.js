@@ -7,6 +7,13 @@ function SistemaView({ teams, currentUser, fetchData, showToast, confirm, postTe
     const secs = s % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   });
+  const [globalDisplayTime, setGlobalDisplayTime] = React.useState(() => {
+    const cat = currentUser?.category || 'quest';
+    const s = parseInt(localStorage.getItem(`ada_timer_${cat}`) || '1800');
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  });
   
   const handleHardReset = () => {
     if (resetCode !== 'RESET-2026') {
@@ -67,7 +74,40 @@ function SistemaView({ teams, currentUser, fetchData, showToast, confirm, postTe
     const secs = totalSecs % 60;
     const formatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     setDisplayTime(formatted);
-    showToast(`⏱️ Tiempo configurado: ${formatted}`, 'success');
+    showToast(`⏱️ Tiempo por intento: ${formatted}`, 'success');
+  };
+
+  const handleGlobalTimerChange = (e) => {
+    let val = e.target.value.replace(/[^0-9:]/g, '');
+    if (val.length === 2 && !val.includes(':') && e.nativeEvent.inputType !== 'deleteContentBackward') {
+      val += ':';
+    }
+    setGlobalDisplayTime(val.substring(0, 5));
+  };
+
+  const saveGlobalTimer = () => {
+    const parts = globalDisplayTime.split(':');
+    let totalSecs = 1800;
+    if (parts.length === 2) {
+      totalSecs = (parseInt(parts[0] || 0) * 60) + parseInt(parts[1] || 0);
+    } else {
+      totalSecs = parseInt(globalDisplayTime) || 1800;
+    }
+    
+    const cat = currentUser?.category || 'quest';
+    localStorage.setItem(`ada_timer_${cat}`, totalSecs.toString());
+    localStorage.setItem(`ada_timer_active_${cat}`, 'false');
+
+    fetch(`${API_BASE}/timer`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ [cat]: { timer: totalSecs, timerActive: false } })
+    }).catch(() => {});
+
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    const formatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    setGlobalDisplayTime(formatted);
+    showToast(`⏱️ Cronómetro Global (${cat}) configurado: ${formatted}`, 'success');
   };
 
   return (
@@ -84,21 +124,43 @@ function SistemaView({ teams, currentUser, fetchData, showToast, confirm, postTe
           <h3 className="text-[10px] font-black text-purple-600 uppercase tracking-widest flex items-center gap-2">
             <Icon name="clock" className="w-4 h-4" /> Configuración de Evaluación Local
           </h3>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
-            <div className="flex-1">
-              <p className="font-black text-sm text-slate-800">Cronómetro Sigue Líneas</p>
-              <p className="text-[10px] font-bold text-slate-400 uppercase mt-1">Tiempo máximo en segundos que el juez tiene en el panel para evaluar a un equipo.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Cronómetro por Intento */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+              <div className="flex-1">
+                <p className="font-black text-sm text-slate-800">Cronómetro por Intento</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase mt-1">Tiempo que el juez tiene en el panel para evaluar a un equipo (Sigue Líneas).</p>
+              </div>
+              <div className="flex items-center gap-4 bg-white p-2 rounded-xl shadow-sm border border-slate-200">
+                <input 
+                  type="text" 
+                  placeholder="03:00"
+                  value={displayTime}
+                  onChange={handleTimerChange}
+                  onBlur={saveTimer}
+                  className="w-24 bg-transparent text-center font-black text-xl text-purple-600 focus:outline-none"
+                />
+                <span className="text-xs font-bold text-slate-400 uppercase pr-4">Min:Seg</span>
+              </div>
             </div>
-            <div className="flex items-center gap-4 bg-white p-2 rounded-xl shadow-sm border border-slate-200">
-              <input 
-                type="text" 
-                placeholder="03:00"
-                value={displayTime}
-                onChange={handleTimerChange}
-                onBlur={saveTimer}
-                className="w-24 bg-transparent text-center font-black text-xl text-purple-600 focus:outline-none"
-              />
-              <span className="text-xs font-bold text-slate-400 uppercase pr-4">Min:Seg</span>
+
+            {/* Cronómetro Global de Ronda */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
+              <div className="flex-1">
+                <p className="font-black text-sm text-blue-900">Cronómetro Global Ronda</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase mt-1">Tiempo de competencia para todos los equipos. Este se muestra en el Ranking y TV.</p>
+              </div>
+              <div className="flex items-center gap-4 bg-white p-2 rounded-xl shadow-sm border border-blue-200">
+                <input 
+                  type="text" 
+                  placeholder="30:00"
+                  value={globalDisplayTime}
+                  onChange={handleGlobalTimerChange}
+                  onBlur={saveGlobalTimer}
+                  className="w-24 bg-transparent text-center font-black text-xl text-blue-600 focus:outline-none"
+                />
+                <span className="text-xs font-bold text-slate-400 uppercase pr-4">Min:Seg</span>
+              </div>
             </div>
           </div>
         </div>
