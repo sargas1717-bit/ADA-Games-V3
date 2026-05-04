@@ -16,6 +16,8 @@ import tempfile
 import threading
 from datetime import datetime
 import time
+import uuid
+from fastapi.staticfiles import StaticFiles
 
 # ==============================================================================
 # CONFIGURACIÓN CENTRAL - Modificar aquí para añadir/quitar categorías
@@ -41,12 +43,17 @@ def get_data_file(category: str) -> str:
     safe_name = category.replace("/", "_").replace("\\", "_")
     return os.path.join(DATA_DIR, f"data_{safe_name}.json")
 
-# Lock por categoría para evitar escrituras concurrentes sobre el mismo archivo
-_locks: Dict[str, threading.Lock] = {cat: threading.Lock() for cat in REGISTERED_CATEGORIES}
+# Carpeta para mapas
+MAPS_DIR = os.path.join(os.path.dirname(DATA_DIR), "frontend", "maps")
+if not os.path.exists(MAPS_DIR):
+    os.makedirs(MAPS_DIR, exist_ok=True)
 
-def get_lock(category: str) -> threading.Lock:
+# Lock por categoría (RLock para permitir reentrada y evitar deadlocks en migraciones)
+_locks: Dict[str, threading.RLock] = {cat: threading.RLock() for cat in REGISTERED_CATEGORIES}
+
+def get_lock(category: str) -> threading.RLock:
     if category not in _locks:
-        _locks[category] = threading.Lock()
+        _locks[category] = threading.RLock()
     return _locks[category]
 
 # ==============================================================================
@@ -89,6 +96,9 @@ def get_calculated_timer(timer_data):
 # ==============================================================================
 def load_category_data(category: str) -> dict:
     """Carga el archivo de datos de una categoría. Genera uno vacío si no existe."""
+    if category not in REGISTERED_CATEGORIES:
+        raise HTTPException(status_code=400, detail=f"Categoría '{category}' no registrada.")
+    
     filepath = get_data_file(category)
     lock = get_lock(category)
 
@@ -192,12 +202,31 @@ def save_users(users):
 # ==============================================================================
 # FASTAPI APP
 # ==============================================================================
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-
 app = FastAPI(title="Motor Modular Adagames API", version="1.0.0")
 
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+
+# Servir carpeta de mapas como estática
+app.mount("/maps", StaticFiles(directory=MAPS_DIR), name="maps")
+
+@app.post("/upload_map")
+async def upload_map(
+    ronda: str = Form(...), 
+    pista: str = Form(...), 
+    file: UploadFile = File(...)
+):
+    try:
+        # Generar nombre único
+        ext = os.path.splitext(file.filename)[1] or ".jpg"
+        filename = f"map_R{ronda}_P{pista}_{uuid.uuid4().hex[:8]}{ext}"
+        filepath = os.path.join(MAPS_DIR, filename)
+        
+        with open(filepath, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        return {"status": "ok", "url": f"maps/{filename}"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 # ==============================================================================
 # RUTAS DE DATOS
@@ -210,11 +239,12 @@ def get_all_data(category: Optional[str] = None):
         # Calcular timer real
         if "timers" in data and category in data["timers"]:
             data["timers"][category] = get_calculated_timer(data["timers"][category])
-        # Normalizar para compatibilidad con el frontend (espera timers.quest y timers.line_follower)
-        timers_compat = {
-            "quest": data.get("timers", {}).get("quest", generate_initial_timer()),
-            "line_follower": data.get("timers", {}).get("line_follower", generate_initial_timer()),
-        }
+        
+        # Normalizar para compatibilidad con el frontend de forma dinámica
+        timers_compat = {cat: generate_initial_timer() for cat in REGISTERED_CATEGORIES}
+        if "timers" in data:
+            timers_compat.update(data["timers"])
+            
         data["timers"] = timers_compat
         return data
     else:
@@ -286,7 +316,7 @@ def update_teams(teams: List[Dict[str, Any]], category: Optional[str] = None):
 @app.post("/api/teams/bulk")
 def bulk_add_teams(new_teams: List[Dict[str, Any]], category: Optional[str] = None):
     for team in new_teams:
-        team["id"] = str(int(time.time() * 1000)) + str(hash(team.get("school", "")) % 10000)
+        team["id"] = f"t_{uuid.uuid4().hex[:8]}"
         team["status"] = "pending"
         team["score"] = 0
         team["history"] = []

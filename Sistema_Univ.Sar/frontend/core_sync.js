@@ -65,14 +65,27 @@ function useDataSync(currentUser) {
     }
   }, [currentUser]);
 
-  const postTracks = React.useCallback((newTracks) => {
+  const postTracks = React.useCallback(async (newTracks) => {
     setTracks(newTracks);
     localStorage.setItem('ada_tracks', JSON.stringify(newTracks));
+    setIsSaving(true);
+    setSaveError(false);
+    isSavingRef.current = true;
     const cat = currentUser?.category || 'quest';
-    fetch(`${API_BASE}/tracks?category=${cat}`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newTracks)
-    });
+    try {
+      const res = await fetch(`${API_BASE}/tracks?category=${cat}`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newTracks)
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    } catch (err) {
+      console.error("[SYNC] Error guardando pistas:", err);
+      setSaveError(true);
+    } finally {
+      setIsSaving(false);
+      // Mantener bloqueo 2s para dar tiempo al servidor
+      setTimeout(() => { isSavingRef.current = false; }, 2000);
+    }
   }, [currentUser]);
 
   return { teams, setTeams, tracks, setTracks, loading, isSaving, saveError, postTeams, postTracks, fetchData };

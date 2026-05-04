@@ -8,7 +8,7 @@ const SUMO_CONDITIONS = [
   { id: 'timeout_win', label: '⏱️ Por Tiempo',       pts: 1, desc: 'Se acaba el tiempo y el robot domina el ring' },
 ];
 
-function SumoEvalPanel({ team, ronda, currentUser, plugin, onAddScore, showToast, allTeams }) {
+function SumoEvalPanel({ team, ronda, currentUser, plugin, tracks, onAddScore, showToast, allTeams }) {
   const [rivalId, setRivalId] = React.useState('');
   const [events, setEvents] = React.useState([]); // { type, pts, time }
   const [running, setRunning] = React.useState(false);

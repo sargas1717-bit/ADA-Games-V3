@@ -1,11 +1,21 @@
 // core_ui.js
 const Icon = ({ name, className }) => {
+  const spanRef = React.useRef(null);
+
   React.useEffect(() => {
-    if (window.lucide) {
-      try { lucide.createIcons(); } catch (e) { }
+    if (spanRef.current && window.lucide) {
+      // Usar innerHTML para que React no rastree el elemento <i>.
+      // Así evitamos el error "NotFoundError" cuando lucide reemplaza el <i> por un <svg>.
+      spanRef.current.innerHTML = `<i data-lucide="${name || 'help-circle'}" class="${className || 'w-5 h-5'}"></i>`;
+      try { 
+        lucide.createIcons({ root: spanRef.current }); 
+      } catch (e) {
+        try { lucide.createIcons(); } catch (e2) {}
+      }
     }
-  }, [name]);
-  return <i data-lucide={name || 'help-circle'} className={className || "w-5 h-5"}></i>;
+  }, [name, className]);
+
+  return <span ref={spanRef} className="inline-flex items-center justify-center pointer-events-none"></span>;
 };
 
 function SaveIndicator({ isSaving, saveError }) {

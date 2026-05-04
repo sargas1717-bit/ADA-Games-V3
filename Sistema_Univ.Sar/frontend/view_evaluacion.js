@@ -34,80 +34,111 @@ function EvaluacionView({ teams, tracks, currentUser, onAddScore, onDeleteEvalua
     });
   };
 
+  // Lógica más robusta para detectar Sigue Líneas (por ID, tipo o título)
+  const isLF = plugin.id.includes('line') || plugin.trackType === 'line_follower_grid' || plugin.title.includes('Línea');
+
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-5 animate-fadeIn">
-      {/* Selectores */}
-      <div>
-        <h2 className="text-2xl font-black text-slate-800 mb-4">
-          Evaluación
-          <span className={`ml-3 text-sm font-bold px-2 py-0.5 rounded-full ${plugin.badgeClass}`}>{plugin.title}</span>
-        </h2>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1">Equipo</label>
-            <select value={selectedTeamId} onChange={e => setSelectedTeamId(e.target.value)}
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <option value="">-- Seleccionar equipo --</option>
-              {myTeams.map(t => (
-                <option key={t.id} value={t.id}>{t.teamName} — {t.schoolName}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-slate-700 block mb-1">Ronda</label>
-            <select value={selectedRound} onChange={e => setSelectedRound(parseInt(e.target.value))}
-              className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              {Array.from({ length: plugin.maxRounds || 5 }, (_, i) => i + 1).map(r => (
-                <option key={r} value={r}>Ronda {r}</option>
-              ))}
-            </select>
+    <div className={`${isLF ? 'max-w-[1300px]' : 'max-w-3xl'} mx-auto p-4 md:p-6 space-y-5 animate-fadeIn`}>
+      {/* Ocultar cabecera estándar para Sigue Líneas ya que el panel premium tiene la suya */}
+      {!isLF && (
+        <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+          <h2 className="text-2xl font-black text-slate-800 mb-4 flex items-center gap-3">
+            <Icon name="clipboard-list" className="w-6 h-6 text-blue-500" />
+            Evaluación
+            <span className={`text-xs font-bold px-3 py-1 rounded-full ${plugin.badgeClass}`}>{plugin.title}</span>
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Seleccionar Equipo</label>
+              <select value={selectedTeamId} onChange={e => setSelectedTeamId(e.target.value)}
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 transition-all">
+                <option value="">-- Seleccionar equipo --</option>
+                {myTeams.map(t => (
+                  <option key={t.id} value={t.id}>{t.teamName} — {t.schoolName}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-1 ml-1">Ronda de Competición</label>
+              <select value={selectedRound} onChange={e => setSelectedRound(parseInt(e.target.value))}
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 transition-all">
+                {Array.from({ length: plugin.maxRounds || 5 }, (_, i) => i + 1).map(r => (
+                  <option key={r} value={r}>Ronda {r}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
-      </div>
+      )}
+
+      {isLF && !selectedTeam && (
+        <div className="bg-[#161925] rounded-[2rem] p-10 border border-[#2a2e3f] shadow-2xl flex flex-col items-center text-center">
+           <div className="bg-blue-600/20 p-4 rounded-2xl mb-6">
+              <Icon name="play" className="w-12 h-12 text-blue-500" />
+           </div>
+           <h2 className="text-3xl font-black text-white mb-2 italic uppercase tracking-tight">Evaluación de Sigue Líneas</h2>
+           <p className="text-slate-400 mb-8 max-w-sm">Selecciona un equipo de la lista para abrir la mesa del juez y comenzar la evaluación.</p>
+           <div className="w-full max-w-md">
+              <select value={selectedTeamId} onChange={e => setSelectedTeamId(e.target.value)}
+                className="w-full bg-[#0a0c12] border border-[#2a2e3f] rounded-2xl px-6 py-4 text-white font-black text-lg outline-none focus:ring-2 focus:ring-blue-500 transition-all appearance-none text-center cursor-pointer">
+                <option value="">-- SELECCIONAR EQUIPO --</option>
+                {myTeams.map(t => (
+                  <option key={t.id} value={t.id}>{t.teamName}</option>
+                ))}
+              </select>
+           </div>
+        </div>
+      )}
 
       {/* Panel de evaluación según trackType del plugin */}
       {selectedTeam ? (
-        <>
+        <div className="space-y-8">
           {(plugin.id === 'quest' || plugin.trackType === 'quest_map') && (
             <QuestEvalPanel team={selectedTeam} ronda={selectedRound}
               currentUser={currentUser} plugin={plugin} tracks={tracks}
               onAddScore={onAddScore} showToast={showToast}
               timerSeconds={timerSeconds} competitionDuration={competitionDuration} />
-
           )}
-          {(plugin.id === 'line_follower' || plugin.trackType === 'line_follower_grid') && (
-            <LineFollowerEvalPanel team={selectedTeam} ronda={selectedRound}
-              currentUser={currentUser} plugin={plugin}
-              onAddScore={onAddScore} showToast={showToast} />
+          {isLF && (
+            <LineFollowerEvalPanel key={`lf-${selectedTeamId}-${selectedRound}`}
+              team={selectedTeam} ronda={selectedRound}
+              currentUser={currentUser} plugin={plugin} tracks={tracks}
+              onAddScore={onAddScore} showToast={showToast} 
+              onBack={() => setSelectedTeamId('')} />
           )}
           {plugin.trackType === 'sumo_versus' && (
             <SumoEvalPanel team={selectedTeam} ronda={selectedRound}
-              currentUser={currentUser} plugin={plugin} allTeams={teams}
-              onAddScore={onAddScore} showToast={showToast} />
+              currentUser={currentUser} plugin={plugin} tracks={tracks}
+              onAddScore={onAddScore} showToast={showToast} allTeams={teams} />
           )}
           {plugin.trackType === 'stands_rubric' && (
             <StandsEvalPanel team={selectedTeam} ronda={selectedRound}
-              currentUser={currentUser} plugin={plugin}
+              currentUser={currentUser} plugin={plugin} tracks={tracks}
               onAddScore={onAddScore} showToast={showToast} />
           )}
 
-          {/* Debug: Si no hay panel renderizado para un equipo seleccionado */}
-          {!['quest_map', 'line_follower_grid', 'sumo_versus', 'stands_rubric'].includes(plugin.trackType) && plugin.id !== 'quest' && plugin.id !== 'line_follower' && (
-             <div className="bg-red-50 p-4 rounded-xl text-red-600 text-xs font-mono">
-               Error: No se encontró panel para {plugin.id} / {plugin.trackType}
+          {/* Fallback si no hay panel renderizado */}
+          {!isLF && !['quest_map', 'sumo_versus', 'stands_rubric'].includes(plugin.trackType) && (
+             <div className="bg-red-50 p-6 rounded-3xl text-red-600 text-sm font-black uppercase text-center border-2 border-red-100">
+                ⚠️ Error: Panel de evaluación no disponible para {plugin.title}
              </div>
           )}
 
           {/* Historial del equipo */}
-          <TeamHistoryPanel team={selectedTeam} currentUser={currentUser}
-            onSoftDelete={softDelete} isAdmin={isAdmin} plugin={plugin} />
-        </>
+          <div className={isLF ? "mt-12" : ""}>
+            <TeamHistoryPanel team={selectedTeam} currentUser={currentUser}
+              onSoftDelete={softDelete} isAdmin={isAdmin} plugin={plugin} />
+          </div>
+        </div>
 
       ) : (
-        <div className="bg-slate-50 rounded-2xl p-12 text-center text-slate-400">
-          <Icon name="clipboard-list" className="w-10 h-10 mx-auto mb-3 text-slate-300" />
-          <p>Selecciona un equipo para comenzar la evaluación</p>
-        </div>
+        !isLF && (
+          <div className="bg-slate-50 rounded-[2.5rem] p-16 text-center border-4 border-dashed border-slate-100">
+            <Icon name="clipboard-list" className="w-16 h-16 mx-auto mb-4 text-slate-200" />
+            <h3 className="text-xl font-black text-slate-400 uppercase tracking-widest">Esperando Selección</h3>
+            <p className="text-slate-300 text-sm mt-2">Elige un equipo para ver su historial y comenzar la evaluación.</p>
+          </div>
+        )
       )}
     </div>
   );

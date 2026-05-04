@@ -16,7 +16,7 @@ const DEFAULT_STANDS_QUESTIONS = [
 const SCORE_OPTIONS = [0, 2, 4, 6, 8, 10];
 const SCORE_LABELS  = ['Nulo', 'Básico', 'Regular', 'Bueno', 'Muy Bueno', 'Excelente'];
 
-function StandsEvalPanel({ team, ronda, currentUser, plugin, onAddScore, showToast }) {
+function StandsEvalPanel({ team, ronda, currentUser, plugin, tracks, onAddScore, showToast }) {
   const questions = plugin.rubricQuestions || DEFAULT_STANDS_QUESTIONS;
   const [scores, setScores] = React.useState(Object.fromEntries(questions.map(q => [q.id, 0])));
   const [notes, setNotes] = React.useState('');

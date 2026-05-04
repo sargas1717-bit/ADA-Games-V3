@@ -192,10 +192,7 @@ function QuestMapConfigurator({ tracks, updateTrackData }) {
                     placeholder="URL del mapa..."
                     value={tracks[selRonda]?.mapUrl || ''}
                     onChange={(e) => {
-                      const updated = { ...tracks };
-                      if (!updated[selRonda]) updated[selRonda] = {};
-                      updated[selRonda].mapUrl = e.target.value;
-                      updateTrackData(selRonda, 1, { __dummy: Date.now() }, updated); // Trigger save with updated round object
+                      updateTrackData(selRonda, 1, { mapUrl: e.target.value });
                     }}
                     className="flex-1 text-[10px] p-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
@@ -215,89 +212,32 @@ function QuestMapConfigurator({ tracks, updateTrackData }) {
   );
 }
 
-// ============================================================================
-// LINE FOLLOWER: MAP CONFIGURATOR
-// ============================================================================
+
 function LineFollowerMapConfigurator({ tracks, updateTrackData, showToast }) {
   const [selRonda, setSelRonda] = React.useState(1);
   const [selPista, setSelPista] = React.useState(1);
-  const canvasRef = React.useRef(null);
-  
   const [bgImage, setBgImage] = React.useState(null);
   const [points, setPoints] = React.useState([]);
   const [guideX, setGuideX] = React.useState(50);
   const [guideY, setGuideY] = React.useState(50);
-  
   const [selectedPointId, setSelectedPointId] = React.useState(null);
   const [dragTarget, setDragTarget] = React.useState(null);
+  const canvasRef = React.useRef(null);
+
+  // Sincronización robusta con el estado global
+  const trackDataStr = React.useMemo(() => JSON.stringify(tracks?.[selRonda]?.[selPista] || {}), [tracks, selRonda, selPista]);
 
   React.useEffect(() => {
-    let newPoints = [];
-    if (tracks && tracks[selRonda] && tracks[selRonda][selPista]) {
-      const data = tracks[selRonda][selPista];
-      setBgImage(data.bgImage || null);
-      newPoints = data.points || [];
-      setGuideX(data.guideX || 50);
-      setGuideY(data.guideY || 50);
-    } else {
-      setBgImage(null);
-      setGuideX(50);
-      setGuideY(50);
-    }
-    setPoints(newPoints);
-    setSelectedPointId(null);
-  }, [tracks, selRonda, selPista]);
+    const data = tracks?.[selRonda]?.[selPista] || {};
+    setBgImage(data.bgImage || null);
+    setPoints(data.points || []);
+    setGuideX(data.guideX || 50);
+    setGuideY(data.guideY || 50);
+  }, [selRonda, selPista, trackDataStr]);
 
   const saveCurrentTrack = () => {
-    if (updateTrackData) {
-      updateTrackData(selRonda, selPista, { bgImage, points, guideX, guideY });
-      showToast(`¡Pista ${selPista} de Ronda ${selRonda} guardada correctamente!`);
-    }
-  };
-
-  const clearCurrentTrack = () => {
-    setBgImage(null);
-    setPoints([]);
-    setGuideX(50);
-    setGuideY(50);
-  };
-
-  React.useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.target.tagName.toLowerCase() === 'input') return;
-      if (selectedPointId && (e.key === 'Delete' || e.key === 'Backspace')) {
-        setPoints(prevPoints => prevPoints.filter(p => p.id !== selectedPointId));
-        setSelectedPointId(null);
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedPointId]);
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const formData = new FormData();
-      formData.append("ronda", selRonda);
-      formData.append("pista", selPista);
-      formData.append("file", file);
-
-      try {
-        const response = await fetch(`${window.API_BASE || '/api'}/upload_map`, {
-          method: 'POST',
-          body: formData
-        });
-        const data = await response.json();
-        if (data.url) {
-          setBgImage(data.url);
-        }
-      } catch (err) {
-        console.error("Error subiendo mapa:", err);
-        const reader = new FileReader();
-        reader.onload = (event) => setBgImage(event.target.result);
-        reader.readAsDataURL(file);
-      }
-    }
+    updateTrackData(selRonda, selPista, { bgImage, points, guideX, guideY });
+    if (showToast) showToast(`¡Pista ${selPista} de Ronda ${selRonda} guardada!`, 'success');
   };
 
   const handleCanvasClick = (e) => {
@@ -306,8 +246,10 @@ function LineFollowerMapConfigurator({ tracks, updateTrackData, showToast }) {
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
     const newPoint = { id: Date.now(), x, y, value: 10, isCompleted: false };
-    setPoints([...points, newPoint]);
+    const updatedPoints = [...points, newPoint];
+    setPoints(updatedPoints);
     setSelectedPointId(newPoint.id);
+    updateTrackData(selRonda, selPista, { points: updatedPoints });
   };
 
   const handleMouseMove = (e) => {
@@ -326,7 +268,12 @@ function LineFollowerMapConfigurator({ tracks, updateTrackData, showToast }) {
     }
   };
 
-  const handleMouseUp = () => setDragTarget(null);
+  const handleMouseUp = () => {
+    if (dragTarget) {
+      updateTrackData(selRonda, selPista, { points, guideX, guideY });
+    }
+    setDragTarget(null);
+  };
 
   const handlePointMouseDown = (e, id) => {
     e.stopPropagation();
@@ -334,150 +281,166 @@ function LineFollowerMapConfigurator({ tracks, updateTrackData, showToast }) {
     setSelectedPointId(id);
   };
 
-  const updatePointValue = (id, newValue) => {
-    setPoints(points.map(p => p.id === id ? { ...p, value: Number(newValue) } : p));
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append("ronda", selRonda);
+      formData.append("pista", selPista);
+      formData.append("file", file);
+      try {
+        const response = await fetch(`/api/upload_map`, { method: 'POST', body: formData });
+        const data = await response.json();
+        if (data.url) {
+          setBgImage(data.url);
+          updateTrackData(selRonda, selPista, { bgImage: data.url });
+        }
+      } catch (err) {
+        console.error("Error subiendo mapa:", err);
+      }
+    }
+  };
+
+  const updatePointValue = (id, val) => {
+    const updated = points.map(p => p.id === id ? { ...p, value: parseInt(val) || 0 } : p);
+    setPoints(updated);
+    updateTrackData(selRonda, selPista, { points: updated });
   };
 
   const deletePoint = (id) => {
-    setPoints(points.filter(p => p.id !== id));
+    const updated = points.filter(p => p.id !== id);
+    setPoints(updated);
     if (selectedPointId === id) setSelectedPointId(null);
-  };
-
-  const getQuadrant = (x, y) => {
-    if (x <= guideX && y <= guideY) return 'Q1';
-    if (x > guideX && y <= guideY) return 'Q2';
-    if (x <= guideX && y > guideY) return 'Q3';
-    return 'Q4';
+    updateTrackData(selRonda, selPista, { points: updated });
   };
 
   const stats = React.useMemo(() => {
-    let maxTotal = 0;
-    const quadrants = {
-      Q1: { score: 0, max: 0 }, Q2: { score: 0, max: 0 },
-      Q3: { score: 0, max: 0 }, Q4: { score: 0, max: 0 }
-    };
+    const quadrants = { Q1: { max: 0 }, Q2: { max: 0 }, Q3: { max: 0 }, Q4: { max: 0 } };
     points.forEach(p => {
-      const q = getQuadrant(p.x, p.y);
+      let q = 'Q4';
+      if (p.x <= guideX && p.y <= guideY) q = 'Q1';
+      else if (p.x > guideX && p.y <= guideY) q = 'Q2';
+      else if (p.x <= guideX && p.y > guideY) q = 'Q3';
       quadrants[q].max += p.value;
-      maxTotal += p.value;
     });
-    return { maxTotal, quadrants };
+    return { quadrants };
   }, [points, guideX, guideY]);
 
   return (
-    <div className="flex flex-col h-[80vh] min-h-[600px] w-full bg-[#0f111a] text-slate-200 font-sans overflow-hidden select-none rounded-[2.5rem] shadow-xl animate-fadeIn">
-      <div className="flex-1 flex flex-col relative overflow-hidden" onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
-        <div className="h-16 border-b border-[#2a2e3f] bg-[#161925] px-8 flex items-center justify-between z-10 shrink-0">
-          <h2 className="text-xl font-bold tracking-wide flex items-center gap-2 text-white">
-            <Icon name="map" className="w-5 h-5 text-blue-500" /> CONFIGURAR NUEVO MAPA
-          </h2>
-          <div className="flex gap-4 items-center">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400 font-bold uppercase">Ronda</span>
-              <select value={selRonda} onChange={e => setSelRonda(parseInt(e.target.value))} className="bg-[#0a0c12] border border-[#2a2e3f] rounded-lg px-2 py-1 text-sm text-white font-bold cursor-pointer">
-                {[1, 2, 3, 4, 5].map(r => <option key={r} value={r}>{r}</option>)}
+    <div className="flex flex-col h-[calc(100vh-140px)] bg-[#0a0c12] rounded-[2rem] overflow-hidden border border-[#2a2e3f] shadow-2xl animate-fadeIn"
+         onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} onMouseLeave={handleMouseUp}>
+      
+      <div className="bg-[#161925] border-b border-[#2a2e3f] p-6 flex items-center justify-between">
+        <div className="flex items-center gap-6">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-2">Configuración</span>
+            <div className="flex gap-2">
+              <select value={selRonda} onChange={e => setSelRonda(parseInt(e.target.value))} className="bg-[#0a0c12] border border-[#2a2e3f] rounded-xl px-4 py-2 text-sm font-black text-white outline-none">
+                {[1, 2, 3, 4, 5].map(r => <option key={r} value={r}>Ronda {r}</option>)}
+              </select>
+              <select value={selPista} onChange={e => setSelPista(parseInt(e.target.value))} className="bg-[#0a0c12] border border-[#2a2e3f] rounded-xl px-4 py-2 text-sm font-black text-white outline-none">
+                {[1, 2, 3, 4, 5].map(p => <option key={p} value={p}>Pista {p}</option>)}
               </select>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400 font-bold uppercase">Pista</span>
-              <select value={selPista} onChange={e => setSelPista(parseInt(e.target.value))} className="bg-[#0a0c12] border border-[#2a2e3f] rounded-lg px-2 py-1 text-sm text-white font-bold cursor-pointer">
-                {[1, 2, 3, 4, 5].map(p => <option key={p} value={p}>{p}</option>)}
-              </select>
-            </div>
-            <button onClick={saveCurrentTrack} className="ml-2 bg-blue-600 hover:bg-blue-500 text-white px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-all shadow-lg hover:scale-105 active:scale-95">
-              <Icon name="save" className="w-4 h-4" /> Guardar Pista
-            </button>
-            <button
-              onClick={async () => {
-                if (!canvasRef.current) return;
-                showToast("Generando imagen...");
-                try {
-                  const canvas = await html2canvas(canvasRef.current, {
-                    useCORS: true,
-                    scale: 2,
-                    backgroundColor: '#ffffff'
-                  });
-                  const link = document.createElement('a');
-                  link.download = `pista_${selRonda}_${selPista}.png`;
-                  link.href = canvas.toDataURL('image/png');
-                  link.click();
-                  showToast("Imagen descargada exitosamente");
-                } catch (err) {
-                  showToast("Error exportando imagen");
-                  console.error(err);
-                }
-              }}
-              className="bg-green-600 hover:bg-green-500 text-white px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-all shadow-lg hover:scale-105 active:scale-95"
-            >
-              <Icon name="image" className="w-4 h-4" /> Exportar PNG
-            </button>
-            <button onClick={clearCurrentTrack} title="Limpiar Pista" className="bg-red-500/20 hover:bg-red-500 hover:text-white text-red-400 border border-red-500/30 px-3 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2 transition-all">
-              <Icon name="trash-2" className="w-4 h-4" />
-            </button>
           </div>
-          <div className="flex gap-6 text-sm font-medium bg-[#0f111a] py-2 px-4 rounded-xl border border-[#2a2e3f]">
+          <div className="h-10 w-px bg-[#2a2e3f]"></div>
+          <div className="flex gap-4">
             {['Q1', 'Q2', 'Q3', 'Q4'].map(q => (
               <div key={q} className="flex flex-col items-center">
-                <span className="text-[10px] text-slate-500 mb-0.5">{q}</span>
-                <span className="text-slate-300">
-                  0/{stats.quadrants[q].max || 0}
-                </span>
+                <span className="text-[8px] text-slate-500 font-bold uppercase">{q}</span>
+                <span className="text-white font-black text-xs">{stats.quadrants[q].max}</span>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="flex-1 p-8 relative overflow-hidden flex items-center justify-center bg-[#0a0c12]">
-          <div className="relative w-full max-w-5xl aspect-[16/10]">
-            <div className="absolute -top-6 left-0 text-xs font-bold text-slate-400 pointer-events-none">Q1 Sup Izq</div>
-            <div className="absolute -top-6 right-0 text-xs font-bold text-slate-400 pointer-events-none">Q2 Sup Der</div>
-            <div className="absolute -bottom-6 left-0 text-xs font-bold text-slate-400 pointer-events-none">Q3 Inf Izq</div>
-            <div className="absolute -bottom-6 right-0 text-xs font-bold text-slate-400 pointer-events-none">Q4 Inf Der</div>
+        <div className="flex gap-3">
+          <button onClick={() => canvasRef.current && html2canvas(canvasRef.current).then(c => {
+            const link = document.createElement('a');
+            link.download = `pista_R${selRonda}_P${selPista}.png`;
+            link.href = c.toDataURL();
+            link.click();
+          })} className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-black uppercase flex items-center gap-2">
+            <Icon name="image" className="w-4 h-4" /> Exportar
+          </button>
+          <button onClick={saveCurrentTrack} className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-black uppercase flex items-center gap-2 shadow-lg shadow-blue-600/20">
+            <Icon name="save" className="w-4 h-4" /> Guardar Pista
+          </button>
+        </div>
+      </div>
 
-            <div ref={canvasRef} onClick={handleCanvasClick} className="relative w-full h-full bg-white rounded-2xl overflow-hidden shadow-2xl border-2 border-dashed border-blue-500/50 cursor-crosshair">
-              {bgImage ? (
-                <img src={bgImage} alt="Pista" className="absolute inset-0 w-full h-full object-contain pointer-events-none bg-white" />
-              ) : (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white text-slate-500 pointer-events-none">
-                  <Icon name="image" className="w-16 h-16 mb-4 opacity-30 text-slate-800" />
-                  <p className="font-semibold text-lg text-slate-600">Sube una imagen para la pista</p>
-                  <p className="text-sm mt-2 text-slate-500">Haz clic en el panel inferior para cargar</p>
-                </div>
-              )}
-              <div className="guide-handle absolute top-0 bottom-0 w-6 -ml-3 flex justify-center z-10 cursor-col-resize hover:bg-black/5" style={{ left: `${guideX}%` }} onMouseDown={(e) => { e.stopPropagation(); setDragTarget({ type: 'guideX' }); }}>
-                <div className="w-0 h-full border-l-4 border-dashed border-red-500/80" />
-              </div>
-              <div className="guide-handle absolute left-0 right-0 h-6 -mt-3 flex items-center z-10 cursor-row-resize hover:bg-black/5" style={{ top: `${guideY}%` }} onMouseDown={(e) => { e.stopPropagation(); setDragTarget({ type: 'guideY' }); }}>
-                <div className="h-0 w-full border-t-4 border-dashed border-red-500/80" />
-              </div>
-              {points.map(point => (
-                <div key={point.id} className={`point-marker absolute -translate-x-1/2 -translate-y-1/2 rounded shadow-lg flex items-center justify-center font-bold text-xs transition-all cursor-grab active:cursor-grabbing ${selectedPointId === point.id ? 'ring-2 ring-yellow-400 z-20' : 'z-10'} bg-[#2a2e3f] text-slate-300 border border-slate-600`} style={{ left: `${point.x}%`, top: `${point.y}%`, width: '42px', height: '24px' }} onClick={(e) => { e.stopPropagation(); setSelectedPointId(point.id); }} onMouseDown={(e) => handlePointMouseDown(e, point.id)}>
-                  {point.value}
-                </div>
-              ))}
+      <div className="flex-1 relative bg-[#0a0c12] p-8 flex items-center justify-center overflow-hidden">
+        <div ref={canvasRef} onClick={handleCanvasClick} className="relative w-full max-w-5xl aspect-[16/10] bg-white rounded-2xl shadow-2xl overflow-hidden cursor-crosshair border-2 border-[#2a2e3f]">
+          {bgImage ? (
+            <img src={bgImage} alt="Map" className="w-full h-full object-fill pointer-events-none" />
+          ) : (
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-300">
+              <Icon name="image" className="w-16 h-16 opacity-20 mb-4" />
+              <p className="font-black text-xl uppercase italic opacity-20 text-center">Subir Mapa para Continuar</p>
             </div>
+          )}
+
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute top-0 bottom-0 border-l-2 border-red-500/40" style={{ left: `${guideX}%` }}></div>
+            <div className="absolute left-0 right-0 border-t-2 border-red-500/40" style={{ top: `${guideY}%` }}></div>
+          </div>
+
+          <div onMouseDown={() => setDragTarget({ type: 'guideX' })} className="guide-handle absolute top-0 bottom-0 w-6 -ml-3 cursor-ew-resize flex items-center justify-center group pointer-events-auto" style={{ left: `${guideX}%` }}>
+            <div className="w-1 h-20 bg-red-500 rounded-full group-hover:w-2 transition-all"></div>
+          </div>
+          <div onMouseDown={() => setDragTarget({ type: 'guideY' })} className="guide-handle absolute left-0 right-0 h-6 -mt-3 cursor-ns-resize flex items-center justify-center group pointer-events-auto" style={{ top: `${guideY}%` }}>
+            <div className="h-1 w-20 bg-red-500 rounded-full group-hover:h-2 transition-all"></div>
+          </div>
+
+          {points.map(p => (
+            <div key={p.id} 
+                 onMouseDown={(e) => handlePointMouseDown(e, p.id)}
+                 onClick={(e) => { e.stopPropagation(); setSelectedPointId(p.id); }}
+                 className={`point-marker absolute w-10 h-10 -ml-5 -mt-5 rounded-lg border-2 flex items-center justify-center font-black text-xs shadow-xl transition-all cursor-move z-10 ${selectedPointId === p.id ? 'bg-blue-600 border-white scale-110 z-20' : 'bg-[#161925] border-blue-500 text-blue-400'}`}
+                 style={{ left: `${p.x}%`, top: `${p.y}%` }}>
+              {p.value}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="bg-[#161925] border-t border-[#2a2e3f] p-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <input type="file" id="mapUpload" className="hidden" onChange={handleImageUpload} />
+          <label htmlFor="mapUpload" className="px-5 py-3 bg-[#1c1f2e] hover:bg-[#2a2e3f] text-slate-300 rounded-xl text-xs font-black uppercase cursor-pointer flex items-center gap-2 border border-[#2a2e3f] transition-all">
+            <Icon name="upload" className="w-4 h-4" /> {bgImage ? 'Cambiar Mapa' : 'Subir Mapa'}
+          </label>
+        </div>
+
+        <div className="flex items-center gap-6 flex-1 max-w-xl bg-[#0a0c12] p-2 rounded-2xl border border-[#2a2e3f]">
+          <div className="flex items-center gap-3 flex-1 px-4">
+            <span className="text-[10px] font-black text-red-500 uppercase">Guía X</span>
+            <input type="range" min="0" max="100" value={guideX} onChange={e => {
+              const val = parseInt(e.target.value);
+              setGuideX(val);
+              updateTrackData(selRonda, selPista, { guideX: val });
+            }} className="flex-1 h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-red-500" />
+          </div>
+          <div className="flex items-center gap-3 flex-1 px-4 border-l border-[#2a2e3f]">
+            <span className="text-[10px] font-black text-red-500 uppercase">Guía Y</span>
+            <input type="range" min="0" max="100" value={guideY} onChange={e => {
+              const val = parseInt(e.target.value);
+              setGuideY(val);
+              updateTrackData(selRonda, selPista, { guideY: val });
+            }} className="flex-1 h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-red-500" />
           </div>
         </div>
 
-        <div className="h-24 bg-[#161925] border-t border-[#2a2e3f] px-6 py-4 flex items-center shrink-0 z-10">
-          <div className="flex w-full items-center justify-between gap-6">
-            <div className="flex items-center gap-4 bg-[#0f111a] px-4 py-2 rounded-xl border border-[#2a2e3f]">
-              <label className="flex items-center gap-2 cursor-pointer text-sm font-semibold hover:text-blue-400 transition-colors">
-                <Icon name="upload" className="w-5 h-5" /> <span>Cargar Mapa</span>
-                <input type="file" accept="image/*,.svg,image/svg+xml" className="hidden" onChange={handleImageUpload} />
-              </label>
-            </div>
-            <div className="flex items-center gap-6 bg-[#0f111a] px-6 py-2 rounded-xl border border-[#2a2e3f] flex-1 max-w-xl">
-              <span className="text-sm font-semibold text-slate-400 whitespace-nowrap">Guías Cuadrantes:</span>
-              <div className="flex items-center gap-2 flex-1"><span className="text-xs font-bold text-red-400">X</span><input type="range" min="0" max="100" value={guideX} onChange={(e) => setGuideX(e.target.value)} className="w-full accent-red-500 h-1" /></div>
-              <div className="flex items-center gap-2 flex-1"><span className="text-xs font-bold text-red-400">Y</span><input type="range" min="0" max="100" value={guideY} onChange={(e) => setGuideY(e.target.value)} className="w-full accent-red-500 h-1" /></div>
-            </div>
-            <div className={`flex items-center gap-3 px-6 py-2 rounded-xl border transition-all ${selectedPointId ? 'bg-blue-900/20 border-blue-500/50' : 'bg-[#0f111a] border-[#2a2e3f] opacity-50'}`}>
-              <span className="text-sm font-semibold text-slate-300">Valor Pieza:</span>
-              <input type="number" value={selectedPointId ? points.find(p => p.id === selectedPointId)?.value || 0 : ''} onChange={(e) => selectedPointId && updatePointValue(selectedPointId, e.target.value)} disabled={!selectedPointId} className="w-20 bg-[#1a1d2d] border border-[#2a2e3f] rounded px-2 py-1 text-center font-bold focus:outline-none focus:border-blue-500 text-slate-200" />
-              <button onClick={() => selectedPointId && deletePoint(selectedPointId)} disabled={!selectedPointId} className="p-1.5 text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded transition-colors disabled:opacity-50"><Icon name="trash-2" className="w-5 h-5" /></button>
-            </div>
-          </div>
+        <div className={`flex items-center gap-4 px-6 py-2 rounded-2xl border-2 transition-all ${selectedPointId ? 'bg-blue-600/10 border-blue-500' : 'bg-[#0a0c12] border-[#2a2e3f] opacity-50'}`}>
+          <span className="text-[10px] font-black text-blue-400 uppercase">Valor</span>
+          <input type="number" 
+                 value={selectedPointId ? points.find(p => p.id === selectedPointId)?.value || 0 : ''} 
+                 onChange={(e) => updatePointValue(selectedPointId, e.target.value)}
+                 disabled={!selectedPointId}
+                 className="w-16 bg-[#161925] border border-[#2a2e3f] rounded-lg px-2 py-1 text-center font-black text-white outline-none" />
+          <button onClick={() => deletePoint(selectedPointId)} disabled={!selectedPointId} className="text-red-400 hover:text-red-300 p-1">
+            <Icon name="trash-2" className="w-5 h-5" />
+          </button>
         </div>
       </div>
     </div>
@@ -488,43 +451,67 @@ function LineFollowerMapConfigurator({ tracks, updateTrackData, showToast }) {
 // MAIN ROUTER: PISTAS VIEW
 // ============================================================================
 function PistasView({ tracks, currentUser, postTracks, showToast }) {
-  const plugin = getCategoryPlugin(currentUser?.category);
-  
-  // Debug info
-  const debugInfo = `Cat: ${currentUser?.category || 'null'} | Plugin: ${plugin?.id || 'null'} | Type: ${plugin?.trackType || 'null'}`;
+  try {
+    // Asegurar que tracks nunca sea null
+    const safeTracks = tracks || {};
+    const plugin = typeof getCategoryPlugin === 'function' ? getCategoryPlugin(currentUser?.category) : { id: 'quest' };
+    
+    const handleUpdateTrack = (ronda, pista, newData) => {
+      const updated = { 
+        ...safeTracks,
+        [ronda]: {
+          ...(safeTracks[ronda] || {}),
+          [pista]: {
+            ...(safeTracks[ronda]?.[pista] || {}),
+            ...newData
+          }
+        }
+      };
+      
+      // Manejo especial para datos a nivel de ronda (como mapUrl)
+      if (newData.mapUrl !== undefined) {
+        updated[ronda].mapUrl = newData.mapUrl;
+      }
+      
+      postTracks(updated);
+    };
 
-  const handleUpdateTrack = (ronda, pista, newData) => {
-    const updated = { ...tracks };
-    if (!updated[ronda]) updated[ronda] = {};
-    updated[ronda][pista] = { ...(updated[ronda][pista] || {}), ...newData };
-    postTracks(updated);
-  };
+    const debugInfo = `Cat: ${currentUser?.category || 'null'} | Plugin: ${plugin?.id || 'null'} | Type: ${plugin?.trackType || 'null'}`;
 
-  let content = null;
-  if (plugin?.id === 'quest' || plugin?.trackType === 'quest_map') {
-    content = <QuestMapConfigurator tracks={tracks} updateTrackData={handleUpdateTrack} showToast={showToast} />;
-  } else if (plugin?.id === 'line_follower' || plugin?.trackType === 'line_follower_grid') {
-    content = <LineFollowerMapConfigurator tracks={tracks} updateTrackData={handleUpdateTrack} showToast={showToast} />;
-  } else {
-    content = (
-      <div className="max-w-4xl mx-auto p-12 text-center bg-white rounded-[2rem] border border-slate-100">
-        <Icon name="map" className="w-16 h-16 mx-auto text-slate-300 mb-4" />
-        <h2 className="text-2xl font-black text-slate-800 uppercase italic">Generador de Pistas no aplicable</h2>
-        <p className="text-slate-400 mt-2">La categoría "{plugin?.title || currentUser?.category}" no utiliza mapas digitales avanzados.</p>
-        <p className="text-[10px] text-slate-300 mt-4 font-mono">{debugInfo}</p>
+    let content = null;
+    if (plugin?.id === 'quest' || plugin?.trackType === 'quest_map') {
+      content = <QuestMapConfigurator tracks={safeTracks} updateTrackData={handleUpdateTrack} showToast={showToast} />;
+    } else if (plugin?.id === 'line_follower' || plugin?.trackType === 'line_follower_grid') {
+      content = <LineFollowerMapConfigurator tracks={safeTracks} updateTrackData={handleUpdateTrack} showToast={showToast} />;
+    } else {
+      content = (
+        <div className="max-w-4xl mx-auto p-12 text-center bg-white rounded-[2rem] border border-slate-100">
+          <Icon name="map" className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+          <h2 className="text-2xl font-black text-slate-800 uppercase italic">Generador de Pistas no aplicable</h2>
+          <p className="text-slate-400 mt-2">La categoría "{plugin?.title || currentUser?.category}" no utiliza mapas digitales avanzados.</p>
+          <p className="text-[10px] text-slate-300 mt-4 font-mono">{debugInfo}</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="relative">
+        <div className="absolute -top-6 right-0 text-[8px] text-slate-300 font-mono">
+          {debugInfo} | v10.2 (Safe)
+        </div>
+        {content}
+      </div>
+    );
+  } catch (error) {
+    console.error("Critical Error in PistasView:", error);
+    return (
+      <div className="p-8 bg-red-50 border-2 border-red-200 rounded-3xl text-red-900">
+        <h2 className="font-black uppercase italic mb-2">⚠️ Error Crítico en Pistas</h2>
+        <p className="text-xs font-mono mb-4">{error.message}</p>
+        <button onClick={() => window.location.reload()} className="px-4 py-2 bg-red-600 text-white rounded-xl text-xs font-bold uppercase">Reiniciar Aplicación</button>
       </div>
     );
   }
-
-  return (
-    <div className="relative">
-      {/* Banner de depuración discreto */}
-      <div className="absolute -top-6 right-0 text-[8px] text-slate-300 font-mono">
-        {debugInfo} | v10.1
-      </div>
-      {content}
-    </div>
-  );
 }
 
 

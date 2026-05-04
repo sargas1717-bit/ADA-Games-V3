@@ -84,27 +84,33 @@ const CATEGORY_REGISTRY = {
     defaultPracticeTickets: 3,
     defaultEvalTickets: { "1": 3, "2": 3, "3": 3 },
 
-    // Motor: toma el MEJOR intento por pista (mayor %, menor tiempo de desempate)
+    // Motor: toma el MEJOR intento por pista dentro de cada ronda (mayor %, menor tiempo)
     calculateScore(history) {
       const offHist = history.filter(h => !h.practice && !h.voided);
       let totalScore = 0, totalTime = 0;
-      const trackGroups = {};
+      
+      const roundGroups = {};
       offHist.forEach(h => {
-        const p = h.pista;
-        if (!trackGroups[p]) trackGroups[p] = [];
-        trackGroups[p].push(h);
+        const r = h.ronda || 1;
+        const p = h.pista || 1;
+        if (!roundGroups[r]) roundGroups[r] = {};
+        if (!roundGroups[r][p]) roundGroups[r][p] = [];
+        roundGroups[r][p].push(h);
       });
-      Object.values(trackGroups).forEach(intentos => {
-        if (!intentos.length) return;
-        const mejor = intentos.reduce((best, h) => {
-          const bPts = best.points || best.percentage || 0;
-          const hPts = h.points || h.percentage || 0;
-          if (hPts > bPts) return h;
-          if (hPts === bPts && (h.finalTimeMs || 0) < (best.finalTimeMs || 0)) return h;
-          return best;
+      
+      Object.values(roundGroups).forEach(pistas => {
+        Object.values(pistas).forEach(intentos => {
+          if (!intentos.length) return;
+          const mejor = intentos.reduce((best, h) => {
+            const bPts = best.points || best.percentage || 0;
+            const hPts = h.points || h.percentage || 0;
+            if (hPts > bPts) return h;
+            if (hPts === bPts && (h.finalTimeMs || 0) < (best.finalTimeMs || 0)) return h;
+            return best;
+          });
+          totalScore += mejor.points || mejor.percentage || 0;
+          totalTime += mejor.finalTimeMs || 0;
         });
-        totalScore += mejor.points || mejor.percentage || 0;
-        totalTime += mejor.finalTimeMs || 0;
       });
       return { score: totalScore, lastTime: totalTime };
     },

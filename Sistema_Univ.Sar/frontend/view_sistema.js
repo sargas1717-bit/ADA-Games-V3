@@ -1,6 +1,12 @@
 // view_sistema.js
 function SistemaView({ teams, currentUser, fetchData, showToast, confirm, postTeams, users }) {
   const [resetCode, setResetCode] = React.useState('');
+  const [displayTime, setDisplayTime] = React.useState(() => {
+    const s = parseInt(localStorage.getItem('ada_lf_max_secs') || '180');
+    const mins = Math.floor(s / 60);
+    const secs = s % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  });
   
   const handleHardReset = () => {
     if (resetCode !== 'RESET-2026') {
@@ -35,14 +41,68 @@ function SistemaView({ teams, currentUser, fetchData, showToast, confirm, postTe
     showToast('✅ Copia de seguridad descargada');
   };
 
+  const handleTimerChange = (e) => {
+    let val = e.target.value.replace(/[^0-9:]/g, '');
+    if (val.length === 2 && !val.includes(':') && e.nativeEvent.inputType !== 'deleteContentBackward') {
+      val += ':';
+    }
+    setDisplayTime(val.substring(0, 5));
+  };
+
+  const saveTimer = () => {
+    const parts = displayTime.split(':');
+    let totalSecs = 180;
+    if (parts.length === 2) {
+      totalSecs = (parseInt(parts[0] || 0) * 60) + parseInt(parts[1] || 0);
+    } else {
+      totalSecs = parseInt(displayTime) || 180;
+    }
+    
+    if (totalSecs < 10) totalSecs = 10;
+    if (totalSecs > 3600) totalSecs = 3600;
+
+    localStorage.setItem('ada_lf_max_secs', totalSecs.toString());
+    
+    const mins = Math.floor(totalSecs / 60);
+    const secs = totalSecs % 60;
+    const formatted = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    setDisplayTime(formatted);
+    showToast(`⏱️ Tiempo configurado: ${formatted}`, 'success');
+  };
+
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn">
+    <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn pb-10">
       <div>
         <h2 className="text-3xl font-black text-blue-900 uppercase italic">Sistema</h2>
         <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mt-1">Configuración Global y Mantenimiento</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        
+        {/* Nueva Sección de Configuración de Jueces */}
+        <div className="bg-white p-8 rounded-[2rem] shadow-xl border border-slate-100 space-y-6 md:col-span-2">
+          <h3 className="text-[10px] font-black text-purple-600 uppercase tracking-widest flex items-center gap-2">
+            <Icon name="clock" className="w-4 h-4" /> Configuración de Evaluación Local
+          </h3>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 bg-slate-50 p-6 rounded-2xl border border-slate-100">
+            <div className="flex-1">
+              <p className="font-black text-sm text-slate-800">Cronómetro Sigue Líneas</p>
+              <p className="text-[10px] font-bold text-slate-400 uppercase mt-1">Tiempo máximo en segundos que el juez tiene en el panel para evaluar a un equipo.</p>
+            </div>
+            <div className="flex items-center gap-4 bg-white p-2 rounded-xl shadow-sm border border-slate-200">
+              <input 
+                type="text" 
+                placeholder="03:00"
+                value={displayTime}
+                onChange={handleTimerChange}
+                onBlur={saveTimer}
+                className="w-24 bg-transparent text-center font-black text-xl text-purple-600 focus:outline-none"
+              />
+              <span className="text-xs font-bold text-slate-400 uppercase pr-4">Min:Seg</span>
+            </div>
+          </div>
+        </div>
+
         <div className="bg-white p-8 rounded-[2rem] shadow-xl border border-slate-100 space-y-6">
           <h3 className="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2">
             <Icon name="database" className="w-4 h-4" /> Gestión de Datos

@@ -2,7 +2,7 @@
 // QUEST_ROWS y QUEST_COLS ya están definidos globalmente en view_pistas.js
 
 
-function QuestEvalPanel({ team, ronda, currentUser, plugin, onAddScore, showToast, tracks, timerSeconds, competitionDuration }) {
+function QuestEvalPanel({ team, ronda, currentUser, plugin, tracks, onAddScore, showToast, timerSeconds, competitionDuration }) {
   const [selPista, setSelPista] = React.useState(1);
   const [attemptType, setAttemptType] = React.useState('practice'); // 'practice' | 'evaluation' | 'practice_to_eval'
   const [progressIdx, setProgressIdx] = React.useState(-1);

@@ -6,8 +6,39 @@
       "schoolName": "Juan Vicente González",
       "school": "Equipo Line_follower 1 — Juan Vicente González",
       "status": "inspected",
-      "score": 0,
-      "history": [],
+      "score": 120,
+      "history": [
+        {
+          "ronda": 1,
+          "pista": 1,
+          "points": 120,
+          "finalTimeMs": 14812,
+          "data": {
+            "penalties": 0
+          },
+          "practice": false,
+          "convertedFromPractice": false,
+          "voided": false,
+          "date": "9:08:21 p. m.",
+          "judgeId": "admin",
+          "judgeName": "Administrador Central"
+        },
+        {
+          "ronda": 1,
+          "pista": 1,
+          "points": 90,
+          "finalTimeMs": 22552,
+          "data": {
+            "penalties": 0
+          },
+          "practice": false,
+          "convertedFromPractice": false,
+          "voided": false,
+          "date": "9:31:51 p. m.",
+          "judgeId": "admin",
+          "judgeName": "Administrador Central"
+        }
+      ],
       "category": "line_follower",
       "qualifiedRounds": [
         1,
@@ -22,7 +53,7 @@
         "4": 1,
         "5": 1
       },
-      "lastTime": 0
+      "lastTime": 14812
     },
     {
       "id": "17776927611320002",
@@ -30,8 +61,39 @@
       "schoolName": "U.E. Menca de Leoni",
       "school": "Equipo Line_follower 2 — U.E. Menca de Leoni",
       "status": "inspected",
-      "score": 0,
-      "history": [],
+      "score": 110,
+      "history": [
+        {
+          "ronda": 1,
+          "pista": 1,
+          "points": 70,
+          "finalTimeMs": 5081,
+          "data": {
+            "penalties": 0
+          },
+          "practice": false,
+          "convertedFromPractice": false,
+          "voided": false,
+          "date": "9:09:09 p. m.",
+          "judgeId": "admin",
+          "judgeName": "Administrador Central"
+        },
+        {
+          "ronda": 1,
+          "pista": 1,
+          "points": 110,
+          "finalTimeMs": 14131,
+          "data": {
+            "penalties": 0
+          },
+          "practice": false,
+          "convertedFromPractice": false,
+          "voided": false,
+          "date": "9:09:53 p. m.",
+          "judgeId": "admin",
+          "judgeName": "Administrador Central"
+        }
+      ],
       "category": "line_follower",
       "qualifiedRounds": [
         1,
@@ -46,7 +108,7 @@
         "4": 1,
         "5": 1
       },
-      "lastTime": 0
+      "lastTime": 14131
     },
     {
       "id": "17776927611340003",
@@ -78,8 +140,24 @@
       "schoolName": "Colegio Ideal",
       "school": "Equipo Line_follower 4 — Colegio Ideal",
       "status": "inspected",
-      "score": 0,
-      "history": [],
+      "score": 140,
+      "history": [
+        {
+          "ronda": 1,
+          "pista": 1,
+          "points": 140,
+          "finalTimeMs": 13262,
+          "data": {
+            "penalties": 0
+          },
+          "practice": false,
+          "convertedFromPractice": false,
+          "voided": false,
+          "date": "9:32:26 p. m.",
+          "judgeId": "admin",
+          "judgeName": "Administrador Central"
+        }
+      ],
       "category": "line_follower",
       "qualifiedRounds": [
         1,
@@ -94,7 +172,7 @@
         "4": 1,
         "5": 1
       },
-      "lastTime": 0
+      "lastTime": 13262
     },
     {
       "id": "17776927611360005",
@@ -125,15 +203,238 @@
     "1": {
       "1": {
         "mapUrl": "",
-        "points": 34
+        "points": [
+          {
+            "id": 1777852189239,
+            "x": 49.609375,
+            "y": 49.08854007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852190791,
+            "x": 41.015625,
+            "y": 62.366535663604736,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852191367,
+            "x": 8.984375,
+            "y": 13.619790077209473,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852688431,
+            "x": 52.5390625,
+            "y": 73.61979007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852696864,
+            "x": 8.203125,
+            "y": 84.24479007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852706392,
+            "x": 88.76953125,
+            "y": 23.463540077209473,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777853504681,
+            "x": 9.08203125,
+            "y": 49.08854007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777853506825,
+            "x": 24.0234375,
+            "y": 44.55729007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777853508169,
+            "x": 27.05078125,
+            "y": 85.18229007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777853510265,
+            "x": 66.40625,
+            "y": 13.619790077209473,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777853512345,
+            "x": 66.796875,
+            "y": 89.71354007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777854836284,
+            "x": 35.546875,
+            "y": 10.963540077209473,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777854838147,
+            "x": 46.09375,
+            "y": 19.713540077209473,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777854839043,
+            "x": 91.015625,
+            "y": 49.71354007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777854839715,
+            "x": 88.76953125,
+            "y": 83.46354007720947,
+            "value": 10,
+            "isCompleted": false
+          }
+        ],
+        "bgImage": "/maps/mapa_ronda1_pista1.png?t=1777852683",
+        "guideX": 56.73828125,
+        "guideY": 67.68229007720947
+      }
+    },
+    "2": {
+      "2": {
+        "bgImage": "/maps/mapa_ronda2_pista2.png?t=1777852739",
+        "points": [
+          {
+            "id": 1777852744746,
+            "x": 54.6875,
+            "y": 50.33854007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852762040,
+            "x": 29.4921875,
+            "y": 6.119790077209473,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852762936,
+            "x": 9.1796875,
+            "y": 5.494790077209473,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852764848,
+            "x": 12.3046875,
+            "y": 37.83854007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852765728,
+            "x": 15.33203125,
+            "y": 60.49479007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852766751,
+            "x": 5.17578125,
+            "y": 86.74479007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852767640,
+            "x": 72.8515625,
+            "y": 88.46354007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852771136,
+            "x": 49.70703125,
+            "y": 93.93229007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852772789,
+            "x": 28.515625,
+            "y": 95.18229007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852776856,
+            "x": 50.9765625,
+            "y": 4.713540077209473,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777852777744,
+            "x": 64.453125,
+            "y": 5.182290077209473,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777854851331,
+            "x": 29.1015625,
+            "y": 51.11979007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777854852411,
+            "x": 64.94140625,
+            "y": 29.557290077209476,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777854853867,
+            "x": 90.625,
+            "y": 54.24479007720947,
+            "value": 10,
+            "isCompleted": false
+          },
+          {
+            "id": 1777854854411,
+            "x": 89.2578125,
+            "y": 13.619790077209473,
+            "value": 10,
+            "isCompleted": false
+          }
+        ],
+        "guideX": 57.91015625,
+        "guideY": 71.43229007720947
       }
     }
   },
   "timers": {
     "line_follower": {
       "timer": 1800,
-      "timerActive": false,
-      "updatedAt": 1777692761.137759
+      "timerActive": true,
+      "updatedAt": 1777857033.4084222
     }
   },
   "category": "line_follower"
